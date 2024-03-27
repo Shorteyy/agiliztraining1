@@ -87,6 +87,39 @@ view: inventory_items {
     timeframes: [raw, time, date, week, month, quarter, year]
     sql: ${TABLE}.sold_at ;;
   }
+
+# DYN Measure
+
+  measure: kpi {
+    label_from_parameter: metric_selector
+    type: number
+    sql:
+    CASE
+      WHEN {% parameter metric_selector %} = 'TOTAL'
+        THEN ${total_cost}
+      WHEN {% parameter metric_selector %} = 'AVERAGE'
+        THEN ${average_cost}
+      ELSE NULL
+    END ;;
+    value_format: "#,##0"
+  }
+
+#parameters
+
+  parameter: metric_selector  {
+    label: "Select a KPI"
+    type: string
+    allowed_value: {
+      label: "Total cost"
+      value: "TOTAL"
+    }
+    allowed_value: {
+      label: "Average cost"
+      value: "AVERAGE"
+    }
+    default_value: "TOTAL"
+  }
+
   measure: count {
     type: count
     drill_fields: [id, product_name, products.name, products.id, order_items.count]
